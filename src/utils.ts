@@ -55,15 +55,30 @@ export const convertType = (vimType: string): string => {
   }
 };
 
-export const jsdocContent = (content: string[]) => {
-  const trimContent = content.map(line => {
-    const ret = line.trim()
-    if (ret.endsWith('\n')) {
-      return ret.slice(0, ret.length - 1);
-    }
-    return ret;
+/**
+ * Parse string list to jsdoc docstring
+* @param content string list to be parsed
+* @param indent indent level for docstring
+* @param indentSize how many spaces for an indent level
+ */
+export const parseContentInDocstring = (content: string[], indent: number = 1, indentSize: number = 2) => {
+  const newContent: string[] = [];
+  const indentStr = ' '.repeat(indent).repeat(indentSize);
+  content.forEach(item => {
+    // item may contain newline chars, redivide lines
+    const lines = item.split('\n');
+    lines.forEach(line => {
+      const trimLine = line.trimEnd();
+      if (trimLine.length) {
+        newContent.push(trimLine);
+      }
+    });
   });
-  return `   * ${trimContent.join('\n   * ')}`;
+  const midLines = newContent.join(`\n${indentStr} * `);
+  return `${indentStr}/**
+${indentStr} * ${midLines}
+${indentStr} */
+`;
 }
 
 /**
@@ -84,7 +99,8 @@ export const convertFunction2TypeDef = (fname: string, f: IApiFunction): string 
     docs.push(`@param ${param} ${f.parameters_doc[param]}`);
   }
   if (f.return.length) {
-    docs.push(`@returns ${f.return.join()}`);
+    docs.push(`@returns ${f.return[0]}`);
+    docs.push(...f.return.slice(1));
   }
 
   if (f.signature.length) {
@@ -92,21 +108,20 @@ export const convertFunction2TypeDef = (fname: string, f: IApiFunction): string 
   }
 
   if (f.annotations.length) {
-    docs.push(`@annotations ${f.annotations.join()}`);
+    docs.push(`@annotations ${f.annotations[0]}`);
+    docs.push(...f.annotations.slice(1));
   }
 
   if (f.seealso.length) {
-    docs.push(`@reference ${f.seealso.join()}`);
+    docs.push(`@reference ${f.seealso[0]}`);
+    docs.push(...f.seealso.slice(1));
   }
 
   // We can't get return type from mpack yet
   const returnType = 'void';
   return (
-    (docs.length
-      ? `  /**
-${jsdocContent(docs)}
-   */\n`
-      : "") + `  ${fname}: (${parameters}) => ${returnType};`
+    (docs.length ? parseContentInDocstring(docs) : "") +
+    `  ${fname}: (${parameters}) => ${returnType};`
   );
 };
 
