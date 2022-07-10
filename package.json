@@ -1,0 +1,36 @@
+{
+  "name": "lua-types-nvim",
+  "version": "0.0.1",
+  "description": "TypeScript definitions for Neovim Lua APIs",
+  "keywords": [
+    "neovim",
+    "typescript",
+    "lua",
+    "tstl"
+  ],
+  "types": "./index.d.ts",
+  "files": [
+    "./index.d.ts",
+    "types/*.d.ts"
+  ],
+  "author": "gkzhb <gkzhb98@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "url": "https://github.com/gkzhb/lua-types-nvim",
+    "type": "git"
+  },
+  "devDependencies": {
+    "@msgpack/msgpack": "^2.7.2",
+    "@types/node": "^18.0.3",
+    "tsc": "^2.0.4",
+    "typescript": "^4.7.4",
+    "typescript-to-lua": "^1.6.0",
+    "typescript-tstl-plugin": "^0.3.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "build-dts": "node dist/index.js"
+  }
+}
