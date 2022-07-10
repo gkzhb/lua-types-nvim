@@ -1,6 +1,10 @@
-/// <reference path="./utils.d.ts" />
+/// <reference path="utils.d.ts" />
 
 import { Api } from './api.d';
-export declare module vim {
-  export const api: Api;
+
+export declare interface IVim {
+  api: Api;
+}
+declare global {
+  const vim: IVim;
 }

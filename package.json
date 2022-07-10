@@ -8,9 +8,10 @@
     "lua",
     "tstl"
   ],
-  "types": "./index.d.ts",
+  "main": "",
+  "types": "index.d.ts",
   "files": [
-    "./index.d.ts",
+    "index.d.ts",
     "types/*.d.ts"
   ],
   "author": "gkzhb <gkzhb98@gmail.com>",

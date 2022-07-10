@@ -55,6 +55,17 @@ export const convertType = (vimType: string): string => {
   }
 };
 
+export const jsdocContent = (content: string[]) => {
+  const trimContent = content.map(line => {
+    const ret = line.trim()
+    if (ret.endsWith('\n')) {
+      return ret.slice(0, ret.length - 1);
+    }
+    return ret;
+  });
+  return `   * ${trimContent.join('\n   * ')}`;
+}
+
 /**
  * Convert a function from msgpack to tslua type
  *
@@ -67,8 +78,36 @@ export const convertFunction2TypeDef = (fname: string, f: IApiFunction): string 
       : f.parameters
           .map(([type, name]) => `${name}: ${convertType(type)}`)
           .join(", ");
+  const docs: string[] = [];
+  docs.push(...f.doc);
+  for (const param in f.parameters_doc) {
+    docs.push(`@param ${param} ${f.parameters_doc[param]}`);
+  }
+  if (f.return.length) {
+    docs.push(`@returns ${f.return.join()}`);
+  }
+
+  if (f.signature.length) {
+    docs.push(`@signature \`${f.signature}\``);
+  }
+
+  if (f.annotations.length) {
+    docs.push(`@annotations ${f.annotations.join()}`);
+  }
+
+  if (f.seealso.length) {
+    docs.push(`@reference ${f.seealso.join()}`);
+  }
+
+  // We can't get return type from mpack yet
   const returnType = 'void';
-  return `  ${fname}: (${parameters}) => ${returnType};`;
+  return (
+    (docs.length
+      ? `  /**
+${jsdocContent(docs)}
+   */\n`
+      : "") + `  ${fname}: (${parameters}) => ${returnType};`
+  );
 };
 
 /** Get mpack file path for a module */
@@ -78,7 +117,10 @@ export const mod2DefFilePath = (mod: string) => `./types/${mod}.d.ts`;
 
 /** Concat function definition strings and generate ts definition file content */
 export const apiModTemplate = (functions: string[]) => `/** Automatically generated file. Do not manually modify this file. */
+/** @noResolution */
+/** @noSelfInFile */
 
+import { INvimFloatWinConfig } from './utils';
 export declare interface Api {
 ${functions.join('\n\n')}
-}`
+}`;
