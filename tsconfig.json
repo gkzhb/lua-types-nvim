@@ -2,12 +2,15 @@
     "compilerOptions": {
       "strict": true,
       "target": "esnext",
-      "lib": ["esnext"],
+      "lib": ["esnext", "ES2021", "DOM"],
       "module": "CommonJS",
       "moduleResolution": "node",
       "types": ["node"],
       "outDir": "dist",
       "baseUrl": "./src",
       "rootDir": "./src"
-    }
+    },
+    "include": [
+      "src/**/*.ts"
+    ]
 }
