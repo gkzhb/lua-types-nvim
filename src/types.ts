@@ -6,7 +6,7 @@ export interface IApiFunction {
   annotations: string[];
   /** function signature */
   signature: string;
-  /** function parameters and @TODO */
+  /** function parameters' type and name  */
   parameters: [type: keyof NVIM_TYPE_MAP, name: string][];
   /** documentation for function parameters */
   parameters_doc: Record<string, string>;

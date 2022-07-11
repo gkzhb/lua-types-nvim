@@ -17,13 +17,17 @@ if (!type.endsWith(')')) {
 }
 
 /** Convert vim types from neovim msgpack to tslua types */
-export const convertType = (vimType: string): string => {
+export const convertType = (vimType: string): { type: string, optional: boolean } => {
   let type = vimType.slice();
+  let optional = false;
   if (type.endsWith('*')) {
     // remove ending star '*'
+    // star indicates the parameter is optional? @TODO: verify this
+    optional = true;
     type = type.slice(0, type.length - 1).trim();
   }
   const result = extractTypeContainer(type);
+  let finalType = '';
   if (result.container) {
     // container exists
     if (result.container in NVIM_CONTAINER_TYPE_MAP) {
@@ -33,26 +37,30 @@ export const convertType = (vimType: string): string => {
       if (params.length > 1) {
         // multiple parameters
         if (typeMapVal.multi) {
-          return typeMapVal.multi(...params);
+          finalType = typeMapVal.multi(...params);
         } else {
           // not set for multi parameters
           const message = `multi parameter for container ${result.container}: ${result.t}`;
           console.log(message);
-          return `${tsTypes.unknown} /* ${message} */`;
+          finalType = `${tsTypes.unknown} /* ${message} */`;
         }
       } else {
         // only one parameter
-        return typeMapVal.one(params[0]);
+        finalType = typeMapVal.one(params[0]);
       }
     } else {
       // container not found
       const message = `container ${result.container} not found`;
       console.log(message);
-      return `${tsTypes.unknown} /* ${message} */`;
+      finalType = `${tsTypes.unknown} /* ${message} */`;
     }
   } else {
-    return convertTypeDirectly(type);
+    finalType = convertTypeDirectly(type);
   }
+  return {
+    type: finalType,
+    optional,
+  };
 };
 
 export const getIndentString = (indentLevel: number, indentSize: number = 2) => ' '.repeat(indentSize * indentLevel);
@@ -111,13 +119,16 @@ export const convertFunction2TypeDef = (
       f.parameters[0] = ["Any", "this"];
     }
     parameters = f.parameters
-      .map(([type, name]) => `${name}: ${convertType(type)}`)
+      .map(([type, name]) => {
+        const result = convertType(type);
+        return `${name}${result.optional ? "?" : ""}: ${result.type}`;
+      })
       .join(", ");
   }
 
   if (checkFunctionObjectProperty(fname)) {
     // process treesitter lua object properties
-    // @TODO: add to mod
+    // add property to `mod`
     const divideIdx = fname.indexOf(':');
     const prop = fname.slice(0, divideIdx);
     const newFuncName = fname.slice(divideIdx + 1);

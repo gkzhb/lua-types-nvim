@@ -37,7 +37,7 @@ export const processApiFunctions = (obj: NvimApiFunctions, indentLevel: number =
       functions.push(func);
     }
   }
-  // @TODO: process lua object properties
+  // process lua object properties stored in `mod`
   const props = processLuaObjectProps(mod);
   functions.push(...props);
   return functions;

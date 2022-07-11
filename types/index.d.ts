@@ -13,6 +13,7 @@ export declare interface IVim {
   lsp: Lsp;
   diagnostic: Diagnostic;
   treesitter: Treesitter;
+  /** @TODO: fn */
 }
 declare global {
   const vim: IVim;
