@@ -5,7 +5,7 @@ import { decode } from '@msgpack/msgpack';
 const mod = process.argv.length > 2 ? process.argv[2] : null;
 
 if (!mod) {
-  console.log("Please proviced module name.");
+  console.log("Please provide module name.");
   process.exit(0);
 }
 
