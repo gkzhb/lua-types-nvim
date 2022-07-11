@@ -1,6 +1,6 @@
 # Lua Types for Neovim Lua APIs
 
-[![npm version](https://badge.fury.io/js/@gkzhb%2Flua-types-nvim.svg)](https://badge.fury.io/js/@gkzhb%2Flua-types-nvim)
+[![npm version](https://img.shields.io/npm/v/@gkzhb/lua-types-nvim)](https://www.npmjs.com/package/@gkzhb/lua-types-nvim)
 [![GitHub issues](https://img.shields.io/github/issues/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/issues)
 [![GitHub stars](https://img.shields.io/github/stars/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/stargazers)
 [![GitHub license](https://img.shields.io/github/license/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/blob/main/LICENSE)
