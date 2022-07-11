@@ -78,7 +78,7 @@ export const NVIM_CONTAINER_TYPE_MAP: Record<
   Dict: {
     one: tsTypes.recordWithValue,
   },
-  ArrayOf: { one: tsTypes.arrayWithValues, multi: tsTypes.arrayWithValues },
+  ArrayOf: { one: tsTypes.array, multi: tsTypes.arrayWithValues },
   DictionaryOf: { one: tsTypes.recordWithValue },
 };
 

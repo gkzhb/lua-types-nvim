@@ -118,6 +118,11 @@ export const convertFunction2TypeDef = (
       // convert 'self' parameter to `this: any`
       f.parameters[0] = ["Any", "this"];
     }
+    const paramLen = f.parameters.length;
+    if (f.parameters[paramLen - 1][1] === "...") {
+      // deal with remaining parameters
+      f.parameters[paramLen - 1] = [`ArrayOf(${f.parameters[paramLen - 1][0]})`, "...args"];
+    }
     parameters = f.parameters
       .map(([type, name]) => {
         const result = convertType(type);
@@ -132,7 +137,6 @@ export const convertFunction2TypeDef = (
     const divideIdx = fname.indexOf(':');
     const prop = fname.slice(0, divideIdx);
     const newFuncName = fname.slice(divideIdx + 1);
-    console.log('new function name', newFuncName, fname);
     if (!mod[prop]) {
       mod[prop] = {};
     }
