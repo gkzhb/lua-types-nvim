@@ -1,22 +1,72 @@
 import { decode } from '@msgpack/msgpack';
-import { modules } from "./constants";
+import { moduleList, Modules } from "./constants";
 import * as fs from 'fs';
 
-import { NvimApiFunctions } from './types';
-import { apiModTemplate, convertFunction2TypeDef, mod2DefFilePath, mod2MpackPath } from './utils';
+import { NvimApiFunctions, IApiFunction } from './types';
+import { convertFunction2TypeDef, getIndentString, mod2DefFilePath, mod2MpackPath, modTemplates } from './utils';
 
+export type LuaObjectMethodsMap = Record<string, NvimApiFunctions | undefined>;
 
-const file = fs.readFileSync(mod2MpackPath(modules.api));
-const result = decode(file) as NvimApiFunctions;
+export const processLuaObjectProps = (mod: LuaObjectMethodsMap, indentLevel: number = 1) => {
+  const content: string[] = [];
+  const indentStr = getIndentString(indentLevel, 2);
+  // one more indent
+  const indentPlus = indentStr + '  ';
+  for (const prop in mod) {
+    if (mod[prop]) {
+      // process object property `prop`'s methods
+      const subMod: LuaObjectMethodsMap = {};
+      const results = processApiFunctions(mod[prop]!, indentLevel + 1);
+      const result = results.join(`\n${indentPlus}`);
+      // one prop string
+      const propString = `${indentStr}${prop}: {
+${indentPlus}${result}
+${indentStr}};`;
+      content.push(propString);
+    }
+  }
+  return content;
+};
 
-const functions = [];
-for (const fname in result) {
-  functions.push(convertFunction2TypeDef(fname, result[fname]));
+export const processApiFunctions = (obj: NvimApiFunctions, indentLevel: number = 1) => {
+  const mod: LuaObjectMethodsMap = {};
+  const functions: string[] = [];
+  for (const fname in obj) {
+    const func = convertFunction2TypeDef(fname, obj[fname], mod, indentLevel);
+    if (func.length) {
+      functions.push(func);
+    }
+  }
+  // @TODO: process lua object properties
+  const props = processLuaObjectProps(mod);
+  functions.push(...props);
+  return functions;
 }
-const content = apiModTemplate(functions);
+export const writeFile = (fileName: string, content: string) => {
+  try {
+    fs.writeFileSync(fileName, content);
+  } catch (err) {
+    console.error('write error', err);
+  }
+}
 
-try {
-  fs.writeFileSync(mod2DefFilePath(modules.api), content);
-} catch (err) {
-  console.error('write error', err);
+export const processMod = (mod: Modules) => {
+  // if (!(mod in Modules)) {
+  //   console.warn(`${mod} not in Modules`);
+  //   return;
+  // }
+  const file = fs.readFileSync(mod2MpackPath(mod));
+  const result = decode(file) as NvimApiFunctions;
+  const func = processApiFunctions(result);
+  const content = modTemplates[mod]?.(func);
+  if (content) {
+    writeFile(mod2DefFilePath(mod), content)
+  } else {
+    console.warn(`Empty content for ${mod} module.`);
+  }
+}
+
+for (const mod of moduleList) {
+  console.log(`=== start process module ${mod} ===`);
+  processMod(mod);
 }

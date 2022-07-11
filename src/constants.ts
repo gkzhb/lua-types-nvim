@@ -1,5 +1,6 @@
 /** define TypeScript types */
 export const tsTypes = {
+  any: 'any',
   number: 'number',
   string: 'string',
   boolean: 'boolean',
@@ -39,8 +40,10 @@ export const NVIM_TYPE_MAP: Record<string, string> = {
   void: tsTypes.void,
   LuaRef: tsTypes.unknown,
   '2': '2',
+  '': tsTypes.unknown,
 
   float_config: tsTypes.floatWinConfig,
+  Any: tsTypes.any,
   // @TODO: check for these types
   Error: tsTypes.unknown,
   runtime: tsTypes.unknown,
@@ -82,4 +85,17 @@ export const NVIM_CONTAINER_TYPE_MAP: Record<
 
 export type NVIM_TYPE_MAP = typeof NVIM_TYPE_MAP;
 
-export const modules = { api: 'api' };
+export enum Modules {
+  API = 'api',
+  LUA = 'lua',
+  LSP = 'lsp',
+  TREESITTER = 'treesitter',
+  DIAGNOSTIC = 'diagnostic'
+};
+export const moduleList = [
+  Modules.API,
+  Modules.LUA,
+  Modules.LSP,
+  Modules.TREESITTER,
+  Modules.DIAGNOSTIC,
+];

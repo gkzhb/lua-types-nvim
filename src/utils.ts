@@ -1,4 +1,4 @@
-import { convertTypeDirectly, NVIM_TYPE_MAP, NVIM_CONTAINER_TYPE_MAP, processParams, tsTypes } from './constants';
+import { Modules, convertTypeDirectly, NVIM_TYPE_MAP, NVIM_CONTAINER_TYPE_MAP, processParams, tsTypes } from './constants';
 import { IApiFunction } from './types';
 
 /** Process generic type string */
@@ -55,6 +55,8 @@ export const convertType = (vimType: string): string => {
   }
 };
 
+export const getIndentString = (indentLevel: number, indentSize: number = 2) => ' '.repeat(indentSize * indentLevel);
+
 /**
  * Parse string list to jsdoc docstring
 * @param content string list to be parsed
@@ -63,7 +65,7 @@ export const convertType = (vimType: string): string => {
  */
 export const parseContentInDocstring = (content: string[], indent: number = 1, indentSize: number = 2) => {
   const newContent: string[] = [];
-  const indentStr = ' '.repeat(indent).repeat(indentSize);
+  const indentStr = getIndentString(indent, indentSize);
   content.forEach(item => {
     // item may contain newline chars, redivide lines
     const lines = item.split('\n');
@@ -81,18 +83,52 @@ ${indentStr} */
 `;
 }
 
+export const checkFunctionObjectProperty = (fname: string): boolean => {
+  if (fname.includes(':')) {
+    return true;
+  }
+  return false;
+}
+
 /**
  * Convert a function from msgpack to tslua type
  *
  * @param fname function name
  */
-export const convertFunction2TypeDef = (fname: string, f: IApiFunction): string => {
-  const parameters =
-    f.parameters.length === 1 && f.parameters[0][0] === "void"
-      ? "" // function has no parameters
-      : f.parameters
-          .map(([type, name]) => `${name}: ${convertType(type)}`)
-          .join(", ");
+export const convertFunction2TypeDef = (
+  fname: string,
+  f: IApiFunction,
+  mod: Record<string, Record<string, IApiFunction> | undefined>,
+  indentLevel: number = 1,
+): string => {
+  const parametersExist =
+    f.parameters.length &&
+    !(f.parameters.length === 1 && f.parameters[0][0] === "void");
+  let parameters = ""; // function has no parameters
+  if (parametersExist) {
+    if (f.parameters[0][1] === "self") {
+      // convert 'self' parameter to `this: any`
+      f.parameters[0] = ["Any", "this"];
+    }
+    parameters = f.parameters
+      .map(([type, name]) => `${name}: ${convertType(type)}`)
+      .join(", ");
+  }
+
+  if (checkFunctionObjectProperty(fname)) {
+    // process treesitter lua object properties
+    // @TODO: add to mod
+    const divideIdx = fname.indexOf(':');
+    const prop = fname.slice(0, divideIdx);
+    const newFuncName = fname.slice(divideIdx + 1);
+    console.log('new function name', newFuncName, fname);
+    if (!mod[prop]) {
+      mod[prop] = {};
+    }
+    mod[prop]![newFuncName] = f;
+    return '';
+  }
+
   const docs: string[] = [];
   docs.push(...f.doc);
   for (const param in f.parameters_doc) {
@@ -118,10 +154,10 @@ export const convertFunction2TypeDef = (fname: string, f: IApiFunction): string 
   }
 
   // We can't get return type from mpack yet
-  const returnType = 'void';
+  const returnType = "void";
   return (
-    (docs.length ? parseContentInDocstring(docs) : "") +
-    `  ${fname}: (${parameters}) => ${returnType};`
+    (docs.length ? parseContentInDocstring(docs, indentLevel) : "") +
+    `${'  '.repeat(indentLevel)}${fname}: (${parameters}) => ${returnType};`
   );
 };
 
@@ -130,12 +166,24 @@ export const mod2MpackPath = (mod: string) => `./data/${mod}.mpack`;
 /** Get ts definition file path for a module */
 export const mod2DefFilePath = (mod: string) => `./types/${mod}.d.ts`;
 
-/** Concat function definition strings and generate ts definition file content */
-export const apiModTemplate = (functions: string[]) => `/** Automatically generated file. Do not manually modify this file. */
+const getModTemplate = (mod: Modules) => {
+  const modName = mod.charAt(0).toUpperCase() + mod.slice(1);
+return (
+    functions: string[]
+  ) => `/** Automatically generated file. Do not manually modify this file. */
 /** @noResolution */
 /** @noSelfInFile */
 
 import { INvimFloatWinConfig } from './utils';
-export declare interface Api {
-${functions.join('\n\n')}
-}`;
+export declare interface ${modName} {
+${functions.join("\n\n")}
+}`
+};
+/** Concat function definition strings and generate ts definition file content */
+export const modTemplates: Record<Modules, (funcs: string[]) => string> = {
+  [Modules.API]: getModTemplate(Modules.API),
+  [Modules.LUA]: getModTemplate(Modules.LUA),
+  [Modules.LSP]: getModTemplate(Modules.LSP),
+  [Modules.TREESITTER]: getModTemplate(Modules.TREESITTER),
+  [Modules.DIAGNOSTIC]: getModTemplate(Modules.DIAGNOSTIC),
+};

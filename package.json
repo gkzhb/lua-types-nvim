@@ -32,6 +32,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
-    "build-dts": "node dist/index.js"
+    "build-dts": "node dist/index.js",
+    "preview": "node dist/preview.js"
   }
 }

@@ -1,1 +1,5 @@
 api.d.ts
+lua.d.ts
+lsp.d.ts
+treesitter.d.ts
+diagnostic.d.ts
