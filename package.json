@@ -36,6 +36,7 @@
     "dev": "tsc -w",
     "build-dts": "node dist/index.js",
     "preview": "node dist/preview.js",
-    "in-one-go": "yarn && yarn build && yarn build-dts"
+    "in-one-go": "yarn && yarn build && yarn build-dts",
+    "clean": "rm types/api.d.ts types/lsp.d.ts types/lua.d.ts types/diagnostic.d.ts types/treesitter.d.ts"
   }
 }

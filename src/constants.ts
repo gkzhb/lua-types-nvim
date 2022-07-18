@@ -1,101 +1,118 @@
-/** define TypeScript types */
-export const tsTypes = {
-  any: 'any',
-  number: 'number',
-  string: 'string',
-  boolean: 'boolean',
-  array: (t: string) => `${t}[]`,
-  arrayWithValues: (...args: string[]) => {
-    if (args.length === 2 && args[1] === '2') {
-      return `[${args[0]}, ${args[0]}]`;
-    }
-    return `[${args.join(', ')}]`;
-  },
-  record: 'Record<string, unknown>',
-  recordWithValue: (t: string) => `Record<string, ${t}>`,
-  void: 'void',
-  unknownArray: 'Array<unknown>',
-  unknown: 'unknown',
-
-  // custom types
-  /** floating window config options */
-  floatWinConfig: 'INvimFloatWinConfig',
-}
+import { factory, TypeNode, Node } from 'typescript';
+import {
+  typeNodes,
+  checkParamType,
+  getRecordTypeNode,
+  getArrayTypeNode,
+  getArrayTypeNodeWithValues,
+  isNumeric,
+  getInterfaceNode,
+  getDictNode,
+} from "./ts-types";
+import { getImportNode } from "./ts";
+import { ParamData } from './types';
 
 /**
  * The type mapping between `nvim --api-info` and TypeScript type.
  */
-export const NVIM_TYPE_MAP: Record<string, string> = {
-  Integer: tsTypes.number,
-  Float: tsTypes.number,
-  String: tsTypes.string,
-  Boolean: tsTypes.boolean,
-  Array: tsTypes.unknownArray,
-  Dict: tsTypes.record,
-  Dictionary: tsTypes.record,
-  Object: tsTypes.record,
-  Buffer: tsTypes.number,
-  Window: tsTypes.number,
-  Tabpage: tsTypes.number,
-  void: tsTypes.void,
-  LuaRef: tsTypes.unknown,
-  '2': '2',
-  '': tsTypes.unknown,
+export const NVIM_TYPE_MAP: Record<string, () => TypeNode> = {
+  Integer: typeNodes.number,
+  Float: typeNodes.number,
+  String: typeNodes.string,
+  Boolean: typeNodes.boolean,
+  Array: typeNodes.unknownArray,
+  Dict: typeNodes.record,
+  Dictionary: typeNodes.record,
+  Object: typeNodes.record,
+  Buffer: typeNodes.number,
+  Window: typeNodes.number,
+  Tabpage: typeNodes.number,
+  void: typeNodes.void,
+  LuaRef: typeNodes.unknown,
+  "": typeNodes.unknown,
 
-  float_config: tsTypes.floatWinConfig,
-  Any: tsTypes.any,
+  Any: typeNodes.any,
   // @TODO: check for these types
-  Error: tsTypes.unknown,
-  runtime: tsTypes.unknown,
+  Error: typeNodes.unknown,
 };
 
-/** convert base types */
-export const convertTypeDirectly = (type: string) => {
+/** convert base types, may inclue string of integer */
+export const convertTypeDirectly = (type: string, allowUnknownString: boolean = false): TypeNode | string => {
   if (!(type in NVIM_TYPE_MAP)) {
-    // throw new Error('Unknown type name detected: ' + vimType);
-    console.log('Unknown type name detected: ' + type);
-    return 'unknown' + ` /* ${type} */`;
+    if (isNumeric(type)) {
+      // return string of number
+      return type;
+    }
+    if (allowUnknownString) {
+      return type;
+    }
+    console.log("Unknown type name detected: " + type);
+    return typeNodes.unknown();
   }
-  return NVIM_TYPE_MAP[type];
+  return NVIM_TYPE_MAP[type]();
 };
 
 /** process comma ',' separated parameters */
-export const processParams = (params: string): string[] => {
-  if (params.includes(',')) {
+export const processParams = (params: string, allowUnknownString: boolean = false): ParamData[] => {
+  if (params.includes(",")) {
     // multiple parameters
-    const parameters = params.split(',').map(param => param.trim());
-    return parameters.map(param => convertTypeDirectly(param));
+    const parameters = params.split(",").map((param) => param.trim());
+    return parameters.map((param) => convertTypeDirectly(param));
   } else {
     // one parameter
-    return [convertTypeDirectly(params)];
+    return [convertTypeDirectly(params, allowUnknownString)];
   }
 };
 
-export const NVIM_CONTAINER_TYPE_MAP: Record<
-  string,
-  { one: (param: string) => string; multi?: (...param: string[]) => string }
-> = {
+interface IContainerMap {
+  one: (param: ParamData) => TypeNode;
+  multi?: (...param: ParamData[]) => TypeNode;
+}
+export const NVIM_CONTAINER_TYPE_MAP: Record<string, IContainerMap> = {
   Dict: {
-    one: tsTypes.recordWithValue,
+    one: getDictNode,
   },
-  ArrayOf: { one: tsTypes.array, multi: tsTypes.arrayWithValues },
-  DictionaryOf: { one: tsTypes.recordWithValue },
+  ArrayOf: { one: checkParamType(getArrayTypeNode), multi: getArrayTypeNodeWithValues },
+  DictionaryOf: { one: checkParamType(getRecordTypeNode) },
 };
-
 
 export type NVIM_TYPE_MAP = typeof NVIM_TYPE_MAP;
 
 export enum Modules {
-  API = 'api',
-  LUA = 'lua',
-  LSP = 'lsp',
-  TREESITTER = 'treesitter',
-  DIAGNOSTIC = 'diagnostic'
-};
+  API = "api",
+  LUA = "lua",
+  LSP = "lsp",
+  TREESITTER = "treesitter",
+  DIAGNOSTIC = "diagnostic",
+}
 export const moduleList = [
   Modules.API,
   Modules.LUA,
   Modules.LSP,
   Modules.TREESITTER,
   Modules.DIAGNOSTIC,
+];
+
+/** Get mpack file path for a module */
+export const mod2MpackPath = (mod: string) => `./data/${mod}.mpack`;
+/** Get ts definition file path for a module */
+export const mod2DefFilePath = (mod: string) => `./types/${mod}.d.ts`;
+
+export const headAstNodes: Node[] = [
+  factory.createJSDocComment(
+    factory.createNodeArray([
+      factory.createJSDocText(
+        "This is automatically generated file. Do not modify this file manually."
+      ),
+    ])
+  ),
+  factory.createJSDocComment(undefined, [
+    factory.createJSDocReturnTag(factory.createIdentifier("noResolution")),
+    factory.createJSDocReturnTag(factory.createIdentifier("noSelfInFile")),
+  ]),
+  getImportNode({
+    kind: "import",
+    names: ["INvimFloatWinConfig"],
+    modulePath: "./utils",
+  }),
 ];

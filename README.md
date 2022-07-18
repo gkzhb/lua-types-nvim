@@ -65,3 +65,12 @@ yarn --silent preview lua
   will output JSON format from `data/lua.mpack`.
 * Use `yarn in-one-go` to install dependencies, compile TS and run JS to
 generate types in one command.
+
+This project uses TypeScript `factory` to generate ASTs and print them to files.
+
+### References
+
+* [factory.createSourceFile doesn't accept JSDoc node (typings issue) · Issue #44151 · microsoft/TypeScript](https://github.com/microsoft/TypeScript/issues/44151)
+* [Add capability of transforming and emitting JSDoc comments · Issue #17146 · microsoft/TypeScript](https://github.com/microsoft/TypeScript/issues/17146)
+* Thank [TypeScript AST Viewer](https://ts-ast-viewer.com/#) so much for the
+useful tool that helps to develop with Typescript AST.

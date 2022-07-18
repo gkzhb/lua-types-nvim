@@ -1,47 +1,103 @@
 import { decode } from '@msgpack/msgpack';
-import { moduleList, Modules } from "./constants";
+import {
+  headAstNodes,
+  mod2DefFilePath,
+  mod2MpackPath,
+  moduleList,
+  Modules,
+} from "./constants";
 import * as fs from 'fs';
 
-import { NvimApiFunctions, IApiFunction } from './types';
-import { convertFunction2TypeDef, getIndentString, mod2DefFilePath, mod2MpackPath, modTemplates } from './utils';
+import {
+  NvimApiFunctions,
+  IApiFunction,
+  LuaObjectPropMap,
+  IProp,
+  ILiteralType,
+  IInterface,
+} from "./types";
+import { convertFunction } from "./utils";
+import { ModifierSyntaxKind, SyntaxKind } from "typescript";
+import * as ts from 'typescript';
+import { getInterface } from "./ts";
 
-export type LuaObjectMethodsMap = Record<string, NvimApiFunctions | undefined>;
-
-export const processLuaObjectProps = (mod: LuaObjectMethodsMap, indentLevel: number = 1) => {
-  const content: string[] = [];
-  const indentStr = getIndentString(indentLevel, 2);
-  // one more indent
-  const indentPlus = indentStr + '  ';
+/** process all methods with object namespace, like 'treesitter:get_node' */
+export const processLuaObjectProps = (mod: LuaObjectPropMap) => {
+  const props: Record<string, IProp> = {};
   for (const prop in mod) {
     if (mod[prop]) {
-      // process object property `prop`'s methods
-      const subMod: LuaObjectMethodsMap = {};
-      const results = processApiFunctions(mod[prop]!, indentLevel + 1);
-      const result = results.join(`\n${indentPlus}`);
-      // one prop string
-      const propString = `${indentStr}${prop}: {
-${indentPlus}${result}
-${indentStr}};`;
-      content.push(propString);
+      const result = processApis(mod[prop]!);
+      // a property
+      const propType: IProp = {
+        kind: 'property',
+        id: prop,
+        type: result,
+        comments: [],
+      };
+      props[prop] = propType;
     }
   }
-  return content;
+  return props;
 };
 
-export const processApiFunctions = (obj: NvimApiFunctions, indentLevel: number = 1) => {
-  const mod: LuaObjectMethodsMap = {};
-  const functions: string[] = [];
+/** process methods in property */
+export const processApis = (obj: NvimApiFunctions): ILiteralType => {
+  const node: ILiteralType = {
+    kind: 'literalType',
+    props: {},
+  };
+  const mod: LuaObjectPropMap = {};
+
   for (const fname in obj) {
-    const func = convertFunction2TypeDef(fname, obj[fname], mod, indentLevel);
-    if (func.length) {
-      functions.push(func);
+    const func = convertFunction(fname, obj[fname], mod);
+    if (func) {
+      const propNode: IProp = {
+        kind: 'property',
+        id: fname,
+        type: func.node,
+        comments: func.comments,
+      }
+      node.props[fname] = propNode;
     }
   }
   // process lua object properties stored in `mod`
   const props = processLuaObjectProps(mod);
-  functions.push(...props);
-  return functions;
-}
+  node.props = {
+    ...node.props,
+    ...props,
+  }
+  return node;
+};
+
+export const processApiFunctions = (obj: NvimApiFunctions, module: string, modifiers: ModifierSyntaxKind[]): IInterface => {
+  const node: IInterface = {
+    kind: 'interface',
+    props: {},
+    id: module,
+    modifiers,
+  };
+  const mod: LuaObjectPropMap = {};
+  for (const fname in obj) {
+    const func = convertFunction(fname, obj[fname], mod);
+    if (func) {
+      const propNode: IProp = {
+        kind: 'property',
+        id: fname,
+        type: func.node,
+        comments: func.comments,
+      }
+      node.props[fname] = propNode;
+    }
+  }
+  // process lua object properties stored in `mod`
+  const props = processLuaObjectProps(mod);
+  node.props = {
+    ...node.props,
+    ...props,
+  }
+  return node;
+};
+
 export const writeFile = (fileName: string, content: string) => {
   try {
     fs.writeFileSync(fileName, content);
@@ -51,16 +107,23 @@ export const writeFile = (fileName: string, content: string) => {
 }
 
 export const processMod = (mod: Modules) => {
-  // if (!(mod in Modules)) {
-  //   console.warn(`${mod} not in Modules`);
-  //   return;
-  // }
   const file = fs.readFileSync(mod2MpackPath(mod));
   const result = decode(file) as NvimApiFunctions;
-  const func = processApiFunctions(result);
-  const content = modTemplates[mod]?.(func);
-  if (content) {
-    writeFile(mod2DefFilePath(mod), content)
+  const modName = mod.charAt(0).toUpperCase() + mod.slice(1);
+  const interfaceNode = processApiFunctions(result, modName, [SyntaxKind.ExportKeyword]);
+
+  const targetFilePath = mod2DefFilePath(mod);
+  const resultFile = ts.createSourceFile(targetFilePath, "", ts.ScriptTarget.Latest, false, ts.ScriptKind.TS);
+  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+  const content: string[] = [];
+  const astData = headAstNodes.slice();
+  astData.push(getInterface(interfaceNode));
+  for (const node of astData) {
+    content.push(printer.printNode(ts.EmitHint.Unspecified, node, resultFile));
+  }
+
+  if (content.length) {
+    writeFile(targetFilePath, content.join('\n'));
   } else {
     console.warn(`Empty content for ${mod} module.`);
   }

@@ -1,5 +1,6 @@
 /// <reference path="utils.d.ts" />
-/* vim: nomodeline: */
+// vim: nomodeline:
+// about vim modeline: https://vim.fandom.com/wiki/Modeline_magic
 
 import { Api } from './api.d';
 import { Lua } from './lua.d';
