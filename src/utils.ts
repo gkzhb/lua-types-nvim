@@ -49,7 +49,7 @@ export const convertType = (
     // container exists
     if (result.container in NVIM_CONTAINER_TYPE_MAP) {
       // container matches from map
-      const params = processParams(result.t, result.container === 'Dict');
+      const params = processParams(result.t, result.container === "Dict");
       const typeMapVal = NVIM_CONTAINER_TYPE_MAP[result.container];
       if (params.length > 1) {
         // multiple parameters
@@ -71,8 +71,10 @@ export const convertType = (
     }
   } else {
     const temp = convertTypeDirectly(type);
-    if (typeof(temp) === 'string') {
+    if (typeof temp === "string") {
       console.error(`invalid type ${temp} from ${type}`);
+    } else {
+      finalType = temp;
     }
   }
   return {
@@ -80,7 +82,6 @@ export const convertType = (
     optional,
   };
 };
-convertType('Buffer');
 
 /** whether this method is from an object property */
 export const checkFunctionObjectProperty = (fname: string): boolean => {

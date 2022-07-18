@@ -12,6 +12,7 @@ import {
 } from "typescript";
 import { IFunction, IImport, IInterface, ILiteralType, IProp } from "../types";
 
+export const questionToken = f.createToken(SyntaxKind.QuestionToken);
 /** IImport to AST node */
 export const getImportNode = (node: IImport) => {
   const ids = node.names.map((mod) =>
@@ -46,7 +47,6 @@ export const attachJSDoc2Node = (node: Node, comments: string[]) => {
 /** properties of Record<string, IProp> to AST nodes */
 export const getProps = (props: Record<string, IProp>) => {
   const nodes: TypeElement[] = [];
-  const questionToken = f.createToken(SyntaxKind.QuestionToken);
   for (const propName in props) {
     const prop = props[propName];
     const propTypeNode =
@@ -90,7 +90,7 @@ export const getFunction = (func: IFunction) => {
         undefined,
         undefined,
         f.createIdentifier(param.id),
-        undefined,
+        param.optional ? questionToken : undefined,
         param.type
       )
     ),

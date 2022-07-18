@@ -10,13 +10,15 @@ import * as fs from 'fs';
 
 import {
   NvimApiFunctions,
-  IApiFunction,
   LuaObjectPropMap,
   IProp,
   ILiteralType,
   IInterface,
+  NvimCliApiFunctions,
+  ICliFunction,
+  IFunction,
 } from "./types";
-import { convertFunction } from "./utils";
+import { convertFunction, convertType } from "./utils";
 import { ModifierSyntaxKind, SyntaxKind } from "typescript";
 import * as ts from 'typescript';
 import { getInterface } from "./ts";
@@ -106,11 +108,53 @@ export const writeFile = (fileName: string, content: string) => {
   }
 }
 
+export const updateApiASTNodes = (node: IInterface, functions: ICliFunction[]) => {
+  const addNvimPrefix = (str: string) => `nvim_${str}`;
+  for (const func of functions) {
+    if (!(func.name in node.props)) {
+      const newName = addNvimPrefix(func.name);
+      if (!(newName in node.props)) {
+        console.log(`"${func.name}" is not in API`);
+        continue;
+      }
+      func.name = newName;
+    }
+    // Api exists in AST
+    const f = node.props[func.name].type;
+    if (f.kind === 'function') {
+      // f is function
+      if (func.parameters.length > f.parameters.length) {
+        // mismatch API length
+        console.log(`${func.name} parameters length issue`, func.parameters, f.parameters);
+      } else {
+        for (let i = 0; i < func.parameters.length; i++) {
+          if (func.parameters[i][1] !== f.parameters[i].id) {
+            console.log(`${func.name} parameter name mismatches ${func.parameters[i][1]} ${f.parameters[i].id}`);
+          }
+          const newType = convertType(func.parameters[i][0]);
+          f.parameters[i].type = newType.type;
+        }
+        f.return = convertType(func.return_type).type;
+      }
+    } else {
+      // f is LiteralType
+      console.log(`${func.name} is not a function`);
+    }
+  }
+};
+
 export const processMod = (mod: Modules) => {
   const file = fs.readFileSync(mod2MpackPath(mod));
   const result = decode(file) as NvimApiFunctions;
   const modName = mod.charAt(0).toUpperCase() + mod.slice(1);
   const interfaceNode = processApiFunctions(result, modName, [SyntaxKind.ExportKeyword]);
+
+  if (mod === Modules.API) {
+    console.log('== process API with cli mpack data ==');
+    const cliApiContent = fs.readFileSync(mod2MpackPath('builtin-api'));
+    const cliData = decode(cliApiContent) as NvimCliApiFunctions;
+    updateApiASTNodes(interfaceNode, cliData.functions);
+  }
 
   const targetFilePath = mod2DefFilePath(mod);
   const resultFile = ts.createSourceFile(targetFilePath, "", ts.ScriptTarget.Latest, false, ts.ScriptKind.TS);

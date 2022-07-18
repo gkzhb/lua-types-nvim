@@ -10,7 +10,7 @@
 > Following I will try to generate types for `vim.fn` from `data/builtin-docs.json`.
 
 [@gkzhb/lua-types-nvim](https://www.npmjs.com/package/@gkzhb/lua-types-nvim)
-provides TypeScript definitions for Neovim Lua APIs of
+provides TypeScript definitions for Neovim(v0.7.2) Lua APIs of
 [TypeScriptToLua](https://typescripttolua.github.io/) projects.
 
 Inspired by [hrsh7th/deno-nvim-types: The Nvim API type definition for TypeScript](https://github.com/hrsh7th/deno-nvim-types)
@@ -67,6 +67,25 @@ yarn --silent preview lua
 generate types in one command.
 
 This project uses TypeScript `factory` to generate ASTs and print them to files.
+
+### APIs
+
+The structure data about APIs are in `data/` folder.
+
+[`api.mpack`](./data/api.mpack), [`lsp.mpack`](./data/lsp.mpack),
+[`lua.mpack`](./data/lua.mpack), [`diagnostic.mpack`](./data/diagnostic.mpack),
+[`treesitter.mpack`](./data/treesitter.mpack) and
+[`builtin-docs.json`](./data/builtin-docs.json) are from
+[folke/lua-dev.nvim](https://github.com/folke/lua-dev.nvim).
+Data in these mpack files are the same type `NvimApiFunctions`.
+
+[`builtin-api.mpack`](./data/builtin-api.mpack) is from Neovim command line
+
+```bash
+nvim --api-info
+```
+
+The data type is `NvimCliApiFunctions`.
 
 ### References
 
