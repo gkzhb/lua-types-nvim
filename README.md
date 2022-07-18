@@ -1,8 +1,9 @@
 # Lua Types for Neovim Lua APIs
 
+[![GitHub workflow](https://github.com/gkzhb/lua-types-nvim/actions/workflows/npm-publish.yml/badge.svg?branch=main)](https://github.com/gkzhb/lua-types-nvim/actions/workflows/npm-publish.yml)
 [![npm version](https://img.shields.io/npm/v/@gkzhb/lua-types-nvim)](https://www.npmjs.com/package/@gkzhb/lua-types-nvim)
-[![GitHub issues](https://img.shields.io/github/issues/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/issues)
 [![GitHub stars](https://img.shields.io/github/stars/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/issues)
 [![GitHub license](https://img.shields.io/github/license/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/blob/main/LICENSE)
 
 > **WIP**: Now this project provides types for `vim.api`, `vim.lsp`, `vim.lua`,
