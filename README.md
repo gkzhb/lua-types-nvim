@@ -8,7 +8,7 @@
 
 > **WIP**: Now this project provides types for `vim.api`, `vim.lsp`, `vim.lua`,
 > `vim.treesitter` and `vim.diagnostic`.  
-> Following I will try to generate types for `vim.fn` from `data/builtin-docs.json`.
+> Following I will try to generate types for `vim.fn` from `data/builtin.txt`.
 
 [@gkzhb/lua-types-nvim](https://www.npmjs.com/package/@gkzhb/lua-types-nvim)
 provides TypeScript definitions for Neovim(v0.7.2) Lua APIs of
