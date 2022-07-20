@@ -1,6 +1,7 @@
 {
     "compilerOptions": {
       "strict": true,
+      "allowJs": true,
       "target": "esnext",
       "lib": ["esnext", "ES2021", "DOM"],
       "module": "CommonJS",

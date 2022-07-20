@@ -56,6 +56,34 @@ export interface NvimCliApiFunctions {
   error_types: Record<string, { id: number }>;
   ui_events: ICliUIEvent[];
 }
+// {{{1 types for builtin-docs.json
+export interface IBaseCompletionItem {
+  /** item name */
+  label: string;
+  kind: number;
+  sortText: string;
+  insertText: string;
+  insertTextFormat: number;
+}
+export interface IOptionItem extends IBaseCompletionItem {
+  /** option variable type */
+  detail: string;
+  /** empty string */
+  documentation: string;
+}
+
+export interface IBuiltinDocs {
+  completionItems: {
+    options: IOptionItem,
+    variables: IBaseCompletionItem,
+  };
+  documents: {
+    functions: Record<string, string[]>,
+    options: Record<string, string[]>,
+    variables: Record<string, string[]>,
+  };
+  signatureHelp: Record<string, [string, string]>;
+}
 // {{{1 types for generating ASTs
 export interface INode {
   /** node type */

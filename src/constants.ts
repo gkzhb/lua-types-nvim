@@ -16,11 +16,13 @@ import { ParamData } from './types';
  * The type mapping between `nvim --api-info` and TypeScript type.
  */
 export const NVIM_TYPE_MAP: Record<string, () => TypeNode> = {
+  Number: typeNodes.number,
   Integer: typeNodes.number,
   Float: typeNodes.number,
   String: typeNodes.string,
   Boolean: typeNodes.boolean,
   Array: typeNodes.unknownArray,
+  List: typeNodes.unknownArray,
   Dict: typeNodes.record,
   Dictionary: typeNodes.record,
   Object: typeNodes.record,
@@ -30,7 +32,14 @@ export const NVIM_TYPE_MAP: Record<string, () => TypeNode> = {
   void: typeNodes.void,
   LuaRef: typeNodes.unknown,
   "": typeNodes.unknown,
+  Funcref: typeNodes.function,
+  /**
+   * A Blob mostly behaves like a |List| of numbers,
+   * where each number has the value of an 8-bit byte, from 0 to 255.
+   */
+  Blob: () => getArrayTypeNode(typeNodes.number()),
 
+  any: typeNodes.any,
   Any: typeNodes.any,
   // @TODO: check for these types
   Error: typeNodes.unknown,

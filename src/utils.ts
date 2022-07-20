@@ -1,4 +1,4 @@
-import { factory, KeywordTypeSyntaxKind, SyntaxKind, TypeNode } from "typescript";
+import { factory, SyntaxKind, TypeNode } from "typescript";
 import {
   Modules,
   convertTypeDirectly,
@@ -167,9 +167,16 @@ export const convertFunction = (
     docs.push(`@reference ${f.seealso[0]}`);
     docs.push(...f.seealso.slice(1));
   }
-  const comments: string[] = [];
-  for (const doc of docs ){
-    comments.push(...doc.split('\n'));
-  }
+  const comments = processDocLines(docs);
   return { node, comments };
 };
+
+export const processDocLines = (docs: string[]) => {
+  const comments: string[] = [];
+  for (let doc of docs ) {
+    // prevent '*/' ends multiline comments
+    doc = doc.replace(/\*\//g, '*\\/');
+    comments.push(...doc.split('\n'));
+  }
+  return comments;
+}

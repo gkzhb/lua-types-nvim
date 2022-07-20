@@ -3,3 +3,4 @@ lua.d.ts
 lsp.d.ts
 treesitter.d.ts
 diagnostic.d.ts
+fn.d.ts

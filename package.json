@@ -13,6 +13,7 @@
   "files": [
     "index.d.ts",
     "types/*.d.ts",
+    "types/tsconfig.json",
     "README.md",
     "LICENSE"
   ],
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@msgpack/msgpack": "^2.7.2",
     "@types/node": "^18.0.3",
+    "nearley": "^2.20.1",
     "tsc": "^2.0.4",
     "typescript": "^4.7.4",
     "typescript-to-lua": "^1.6.0",
@@ -34,9 +36,13 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
-    "build-dts": "node dist/index.js",
+    "build-api-dts": "node dist/index.js",
+    "build-fn-dts": "node dist/fn.js",
+    "build-dts": "yarn build-api-dts && yarn build-fn-dts",
     "preview": "node dist/preview.js",
-    "in-one-go": "yarn && yarn build && yarn build-dts",
-    "clean": "rm types/api.d.ts types/lsp.d.ts types/lua.d.ts types/diagnostic.d.ts types/treesitter.d.ts"
+    "in-one-go": "yarn && yarn build && yarn parse-nearley && yarn build-dts",
+    "clean": "rm types/api.d.ts types/lsp.d.ts types/lua.d.ts types/diagnostic.d.ts types/treesitter.d.ts",
+    "parse-nearley": "nearleyc ./func_signature.ne -o dist/func_signature.js;"
+    
   }
 }

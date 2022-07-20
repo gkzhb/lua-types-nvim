@@ -7,6 +7,7 @@ import { Lua } from './lua.d';
 import { Lsp } from './lsp.d';
 import { Treesitter } from './treesitter.d';
 import { Diagnostic } from './diagnostic.d';
+import { Fn } from './fn.d';
 
 export declare interface IVim {
   api: Api;
@@ -14,7 +15,7 @@ export declare interface IVim {
   lsp: Lsp;
   diagnostic: Diagnostic;
   treesitter: Treesitter;
-  /** @TODO: fn */
+  fn: Fn;
 }
 declare global {
   const vim: IVim;

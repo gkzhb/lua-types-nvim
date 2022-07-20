@@ -14,6 +14,7 @@ export const typeNodes: Record<string, () => TypeNode> = {
   unknown: () => factory.createKeywordTypeNode(SyntaxKind.UnknownKeyword),
   void: () => factory.createKeywordTypeNode(SyntaxKind.VoidKeyword),
   any: () => factory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
+  function: () => factory.createTypeReferenceNode(factory.createIdentifier('Function')),
 };
 
 /** complex config objects */

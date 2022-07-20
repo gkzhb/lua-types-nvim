@@ -27,7 +27,7 @@ And thanks for [folke/lua-dev.nvim](https://github.com/folke/lua-dev.nvim)'s
 npm install -D @gkzhb/lua-types-nvim
 ```
 
-1. Add this package in your `tsconfig.json` of TypeScriptToLua:
+2. Add this package in your `tsconfig.json` of TypeScriptToLua:
 
 ```json
 {
@@ -54,8 +54,12 @@ While `.d.ts` files in `types/` are type definitions for Neovim Lua APIs in Type
 * Use `yarn` to install dependencies
 * `yarn build` to compile TypeScript in `src`
 * `yarn dev` to watch for ts file changes and compile to JS
-* And `yanr build-dts` to run the compiled js file to generate Neovim API
+* `yarn parse-nearley` to build parser required to process `vim.fn` documentations
+* And `yarn build-dts` to run the compiled js file to generate Neovim API
 type definitions.
+  * `yarn build-api-dts` to process mpack files
+  * `yarn build-fn-dts` to generate definitions for `vim.fn` from
+[`builtin-docs.json`](./data/builtin-docs.json) and [`builtin.txt`](./data/builtin.txt)
 * `yarn --silent preview [module]` to output JSON format content of mpack
   data, like
 
@@ -87,6 +91,13 @@ nvim --api-info
 ```
 
 The data type is `NvimCliApiFunctions`.
+
+[`builtin.txt`](./data/builtin.txt) is from Neovim documentation file in
+`$VIMRUNTIME` which contains `vim.fn` summary information in Section 1 Overview.
+
+From this file and [`builtin-docs.json`](./data/builtin-docs.json) I get vim
+function name, parameter names, return type and not only brief but also detailed
+documentations.
 
 ### References
 
