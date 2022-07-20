@@ -1,6 +1,6 @@
 {
   "name": "@gkzhb/lua-types-nvim",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "TypeScript definitions for Neovim Lua APIs",
   "keywords": [
     "neovim",
@@ -43,6 +43,5 @@
     "in-one-go": "yarn && yarn build && yarn parse-nearley && yarn build-dts",
     "clean": "rm types/api.d.ts types/lsp.d.ts types/lua.d.ts types/diagnostic.d.ts types/treesitter.d.ts",
     "parse-nearley": "nearleyc ./func_signature.ne -o dist/func_signature.js;"
-    
   }
 }
