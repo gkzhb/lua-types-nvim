@@ -7,8 +7,8 @@
 [![GitHub license](https://img.shields.io/github/license/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/blob/main/LICENSE)
 
 > **WIP**: Now this project provides types for `vim.api`, `vim.lsp`, `vim.lua`,
-> `vim.treesitter` and `vim.diagnostic`.  
-> Following I will try to generate types for `vim.fn` from `data/builtin.txt`.
+> `vim.treesitter`, `vim.diagnostic` and `vim.fn`.  
+> Next I will add `vim.opt`.
 
 [@gkzhb/lua-types-nvim](https://www.npmjs.com/package/@gkzhb/lua-types-nvim)
 provides TypeScript definitions for Neovim(v0.7.2) Lua APIs of
