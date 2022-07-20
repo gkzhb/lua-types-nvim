@@ -6,7 +6,7 @@ import {SyntaxKind} from 'typescript';
 import { IBuiltinDocs, IFunction, IInterface, IParameter, IProp } from './types';
 import { isNumeric, typeNodes } from './ts-types';
 import { headAstNodes, mod2DefFilePath, NVIM_TYPE_MAP } from "./constants";
-import { convertType, resplitDocLines } from "./utils.js";
+import { convertType, processDocLines } from "./utils.js";
 // @ts-expect-error
 import * as funcParser from './func_signature.js';
 import {writeTSFile} from './mpack';
@@ -198,7 +198,7 @@ table.forEach(row => {
       type: funcType,
     };
     if (fnName in builtinData.documents.functions) {
-      fnMap[fnName].comments.push(...resplitDocLines(builtinData.documents.functions[fnName]));
+      fnMap[fnName].comments.push(...processDocLines(builtinData.documents.functions[fnName]));
     } else {
       console.log(`cannot find docs for "${fnName}"`);
     }
