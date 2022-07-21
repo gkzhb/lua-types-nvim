@@ -45,9 +45,19 @@ optionalParamList1 -> optionalParamList optionalParamList1 {% list => {
 } %}
   | null {% emptyParamList %}
 
-optionalParamListWithoutLr -> nonEmptyParamList {% id %}
-  | optionalParamList1 {% id %}
-optionalParamList -> optionalComma space %lr optionalParamListWithoutLr space %rr {% (list) => ({ ...list[3], comma: undefined }) %}
+optionalParamListOneLevel -> optionalComma space %lr nonEmptyParamList space %rr {% list => {
+  const ret = { type: 'optinalParamList', params: cloneParams(list[3].params), comma: undefined };
+  ret.params.forEach(item => item.optional = true);
+  return ret;
+} %}
+
+optionalParamList -> optionalParamListOneLevel optionalParamList1 {% list => {
+  const ret = { type: 'optinalParamList', params: cloneParams(list[0].params) };
+  if (list[1].params.length) {
+    ret.params.push(...cloneParams(list[1].params));
+  }
+  return ret;
+} %}
 
 dots -> space %dots {% () =>
   ({ type: 'paramList', params: [{ type: 'param', id: { text: 'args' }, optional: true, more: true }]})

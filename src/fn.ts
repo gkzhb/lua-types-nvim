@@ -165,7 +165,8 @@ table.forEach(row => {
   try {
     parser.feed(row[0]);
   } catch(e) {
-    console.error('parse error', e);
+    console.error('parse error', e, 'for line', row[0]);
+    process.exit(1);
   }
   if (parser.results?.length) {
     const paramSet: Set<string> = new Set();
