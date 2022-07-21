@@ -125,12 +125,13 @@ const divideRow = (row: string): [string, string[], string] | null => {
 }
 
 const processParamText = (text: string, idx: number, paramSet: Set<string>) => {
-  let retVal = text.replace(/-/g, '_');
+  let retVal = text;
   if (isNumeric(retVal)) {
     retVal = 'numericValue';
   } else if (text === 'default') {
     retVal = 'defaultValue';
   }
+  retVal = retVal.replace(/-/g, '_');
   if (paramSet.has(retVal)) {
     retVal += (idx + 1).toString();
   }
@@ -168,14 +169,17 @@ table.forEach(row => {
   }
   if (parser.results?.length) {
     const paramSet: Set<string> = new Set();
-    const params = (parser.results[0] as IParserFunction).params.map(
-      (param, idx): IParameter => ({
+    const parserParams = (parser.results[0] as IParserFunction).params;
+    const params = parserParams.map((param, idx): IParameter => {
+      const more = idx === parserParams.length - 1 && Boolean(param.more);
+      return {
         kind: "parameter",
         id: processParamText(param.id.text, idx, paramSet),
-        type: typeNodes.unknown(),
+        type: more ? typeNodes.unknownArray() : typeNodes.unknown(),
         optional: param.optional,
-      })
-    );
+        more,
+      };
+    });
     const returnTypes = row[1].map(type => convertType(type).type);
     let returnType = returnTypes.length > 1 ? returnTypes[0] : returnTypes[0];
     const signatureReturn = builtinData.signatureHelp[fnName][1];

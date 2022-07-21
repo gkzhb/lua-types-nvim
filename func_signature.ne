@@ -4,6 +4,7 @@
 
   const moo = require("moo");
   const lexer = moo.compile({
+	  dots: /\.{3}/,
     number: /-?\d+/,
     ws:     /[ \t]+/,
     lparen:  '(',
@@ -14,8 +15,9 @@
     rr: ']',
     comma: ',',
     id: /[a-zA-Z][a-zA-Z0-9-_\.]*/,
-    dots: /\.{3}/,
   });
+  const emptyParamList = () => ({ type: 'paramList', params: [] });
+  const cloneParams = (params) => params.map(item => ({...item}));
 %}
 
 # Pass your lexer with @lexer:
@@ -24,48 +26,67 @@
 main -> function {% id %}
 
 # space is optional
-space -> null | %ws
+space -> %ws | null
+opComma -> %comma | null
+optionalComma -> space %comma {% () => ({ comma: true }) %}
+  | null {% () => ({ comma: false }) %}
 
-optionalComma -> null | space %comma | space
+param -> space %lbracket %id %rbracket {% (list) => ({ type: 'param', id: list[2], optional: false, more: false }) %}
+  | space %id {% (list) => ({ type: 'param', id: list[1], optional: false, more: false }) %}
+  | space %number {% (list) => ({ type: 'param', id: list[1], numeric: true, optional: false, more: false }) %}
 
-param -> space %lbracket %id %rbracket {% (list) => ({ type: 'param', id: list[2], optional: false }) %}
-  | space %id {% (list) => ({ type: 'param', id: list[1], optional: false }) %}
-  | space %number {% (list) => ({ type: 'param', id: list[1], optional: false }) %}
-
-optionalParamList -> space %lr optionalComma paramList %rr {% (list) => {
-  list[3].params.forEach(item => item.optional = true);
-  return list[3];
-} %}
-  | optionalParamList optionalParamList {% list => {
-      list[0].params.push(...list[1].params);
-      return list[0];
-    } %}
-
-# at least one param
-reqParamList -> param {% (list) => {
-  const ret = { type: 'paramList', params: [ list[0] ] };
+optionalParamList1 -> optionalParamList optionalParamList1 {% list => {
+  const ret = { type: 'optinalParamList', params: cloneParams(list[0].params) };
+  if (list[1].params.length) {
+	ret.params.push(...cloneParams(list[1].params));
+  }
+  ret.params.forEach(item => item.optional = true);
   return ret;
 } %}
-  | param space %comma reqParamList  {% (list) => {
+  | null {% emptyParamList %}
+
+optionalParamListWithoutLr -> nonEmptyParamList {% id %}
+  | optionalParamList1 {% id %}
+optionalParamList -> optionalComma space %lr optionalParamListWithoutLr space %rr {% (list) => ({ ...list[3], comma: undefined }) %}
+
+dots -> space %dots {% () =>
+  ({ type: 'paramList', params: [{ type: 'param', id: { text: 'args' }, optional: true, more: true }]})
+%}
+nonEmptyRemainReqParamList -> space %comma reqParamList {% list => list[2] %}
+  | optionalComma dots {% list => ({ ...list[1], comma: list[0].comma }) %}
+remainReqParamList -> nonEmptyRemainReqParamList {% id %}
+  | null {% emptyParamList %}
+optionalParam -> param {% id %} | null {% () => null %}
+# at least one param
+reqParamList -> nonEmptyRemainReqParamList {% id %}
+  | param remainReqParamList {% (list) => {
   const ret = { type: 'paramList', params: [ list[0] ] };
-  if (list.length > 1) {
-    ret.params.push(...list[3].params)
+  if (list[1].params.length > 0) {
+    ret.params.push(...list[1].params);
+  }
+  if (list[1].comma === false) {
+    if (ret.params.length > 1) {
+      ret.params.pop();
+      ret.params[ret.params.length - 1].more = true;
+    } else {
+      ret.comma === false;
+    }
   }
   return ret;
 } %}
+optOptionalParamList -> optionalParamList {% id %} | null {% emptyParamList %}
+# eat up commas from begin
+nonEmptyParamList -> reqParamList optOptionalParamList {% (list) => {
+  const ret = { type: 'paramList', params: cloneParams(list[0].params) };
+  if (list[1].params.length > 0) {
+    ret.params.push(...cloneParams(list[1].params));
+  } else {
+    ret.comma = list[0].comma;
+  }
+  return ret;
+} %}
+  | optionalParamList {% list => list[0] %}
 
-# eat up spaces afterwards and ahead
-paramList -> space {% () => ({ type: 'paramList', params: [] }) %}
-  | space %dots space {% () => ({ type: 'paramList', params: [{ type: 'param', id: { text: 'args' }, optional: true, more: true }]}) %}
-  | reqParamList space {% list => list[0] %}
-  | reqParamList space %dots space {% list => {
-      list[0].params[list[0].params.length - 1].more = true;
-      return list[0];
-    } %}
-  | optionalParamList space {% list => list[0] %}
-  | reqParamList optionalParamList space {% (list) => {
-    list[0].params.push(...list[1].params);
-    return list[0];
-  } %}
+paramList -> nonEmptyParamList space {% id %} | space {% emptyParamList %}
 
 function -> %id %lparen paramList %rparen {% list => ({ type: 'function', params: list[2].params, id: list[0] }) %}

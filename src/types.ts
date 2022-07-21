@@ -96,6 +96,8 @@ export interface IParameter extends INode {
   type: TypeNode;
   /** whether to add question mark */
   optional?: boolean;
+  /** ``...args`, variable number of parameters */
+  more: boolean;
 }
 /** function */
 export interface IFunction extends INode {

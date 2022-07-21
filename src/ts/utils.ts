@@ -88,9 +88,9 @@ export const getFunction = (func: IFunction) => {
       f.createParameterDeclaration(
         undefined,
         undefined,
-        undefined,
+        param.more ? f.createToken(SyntaxKind.DotDotDotToken) : undefined,
         f.createIdentifier(param.id),
-        param.optional ? questionToken : undefined,
+        param.optional && !param.more ? questionToken : undefined,
         param.type
       )
     ),

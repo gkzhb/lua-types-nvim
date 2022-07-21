@@ -27,6 +27,7 @@
   "devDependencies": {
     "@msgpack/msgpack": "^2.7.2",
     "@types/node": "^18.0.3",
+    "better-nearley-railroad": "^1.3.0",
     "nearley": "^2.20.1",
     "tsc": "^2.0.4",
     "typescript": "^4.7.4",
@@ -42,6 +43,7 @@
     "preview": "node dist/preview.js",
     "in-one-go": "yarn && yarn build && yarn parse-nearley && yarn build-dts",
     "clean": "rm types/api.d.ts types/lsp.d.ts types/lua.d.ts types/diagnostic.d.ts types/treesitter.d.ts",
-    "parse-nearley": "nearleyc ./func_signature.ne -o dist/func_signature.js;"
+    "parse-nearley": "nearleyc ./func_signature.ne -o dist/func_signature.js;",
+    "build-parser-diag": "npx nearley-rr ./dist/func_signature.js func_signature_railroad_diagrams.html"
   }
 }

@@ -130,14 +130,14 @@ export const convertFunction = (
         "...args",
       ];
     }
-    f.parameters.forEach(([type, name]) => {
+    f.parameters.forEach(([type, name], idx) => {
       const result = convertType(type);
-      // console.log('param type func ', fname, result , type);
       const temp: IParameter = {
         kind: 'parameter',
-        id: name,
+        id: name.replace('...', ''),
         optional: result.optional,
         type: result.type,
+        more: idx === f.parameters.length && name.startsWith('...'),
       };
       node.parameters.push(temp);
     });
