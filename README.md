@@ -105,3 +105,5 @@ documentations.
 * [Add capability of transforming and emitting JSDoc comments · Issue #17146 · microsoft/TypeScript](https://github.com/microsoft/TypeScript/issues/17146)
 * Thank [TypeScript AST Viewer](https://ts-ast-viewer.com/#) so much for the
 useful tool that helps to develop with Typescript AST.
+* Also thank [Nearley Parser Playground](https://omrelli.ug/nearley-playground/)
+for the great DX with [nearley.js - JS Parsing Toolkit](https://nearley.js.org/).

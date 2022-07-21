@@ -26,6 +26,25 @@ export const getImportNode = (node: IImport) => {
   );
 };
 
+export const getInlineJSDocString = (comments: string) => {
+  return `* ${comments} `;
+};
+
+/** add multiple inline JSDoc to AST node */
+export const attachInlineJSDoc2Node = (node: Node, comments: string[]) => {
+  setSyntheticLeadingComments(
+    node,
+    comments.map((comment) => ({
+      kind: SyntaxKind.MultiLineCommentTrivia,
+      text: getInlineJSDocString(comment),
+      hasTrailingNewLine: true,
+      hasLeadingNewline: false,
+      pos: -1,
+      end: -1,
+    }))
+  );
+};
+
 export const getJSDocString = (comments: string[]) => {
   return `*
 ${comments.map((s) => " * " + s).join("\n")}

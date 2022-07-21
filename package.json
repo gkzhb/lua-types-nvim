@@ -42,7 +42,7 @@
     "build-dts": "yarn build-api-dts && yarn build-fn-dts",
     "preview": "node dist/preview.js",
     "in-one-go": "yarn && yarn build && yarn parse-nearley && yarn build-dts",
-    "clean": "rm types/api.d.ts types/lsp.d.ts types/lua.d.ts types/diagnostic.d.ts types/treesitter.d.ts",
+    "clean": "rm -f types/api.d.ts types/lsp.d.ts types/lua.d.ts types/diagnostic.d.ts types/treesitter.d.ts types/fn.d.ts",
     "parse-nearley": "nearleyc ./func_signature.ne -o dist/func_signature.js;",
     "build-parser-diag": "npx nearley-rr ./dist/func_signature.js func_signature_railroad_diagrams.html"
   }

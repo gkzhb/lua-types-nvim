@@ -2,7 +2,7 @@
 // @ts-expect-error
 import * as nearley from 'nearley';
 import * as fs from 'fs';
-import {SyntaxKind} from 'typescript';
+import { SyntaxKind } from "typescript";
 import { IBuiltinDocs, IFunction, IInterface, IParameter, IProp } from './types';
 import { isNumeric, typeNodes } from './ts-types';
 import { headAstNodes, mod2DefFilePath, NVIM_TYPE_MAP } from "./constants";
@@ -10,7 +10,7 @@ import { convertType, processDocLines } from "./utils.js";
 // @ts-expect-error
 import * as funcParser from './func_signature.js';
 import {writeTSFile} from './mpack';
-import {getInterface} from './ts';
+import {attachInlineJSDoc2Node, getInterface} from './ts';
 
 interface IParserParam {
   type: 'param';
@@ -219,5 +219,7 @@ const fnInterface: IInterface = {
   modifiers: [SyntaxKind.ExportKeyword],
 };
 const astData = headAstNodes.slice();
-astData.push(getInterface(fnInterface));
+const interfaceNode = getInterface(fnInterface);
+attachInlineJSDoc2Node(interfaceNode, ['@noSelf']);
+astData.push(interfaceNode);
 writeTSFile(mod2DefFilePath('fn'), astData);

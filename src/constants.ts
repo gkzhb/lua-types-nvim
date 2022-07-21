@@ -9,7 +9,7 @@ import {
   getInterfaceNode,
   getDictNode,
 } from "./ts-types";
-import { getImportNode } from "./ts";
+import { attachInlineJSDoc2Node, getImportNode } from "./ts";
 import { ParamData } from './types';
 
 /**
@@ -115,13 +115,10 @@ export const headAstNodes: Node[] = [
       ),
     ])
   ),
-  factory.createJSDocComment(undefined, [
-    factory.createJSDocReturnTag(factory.createIdentifier("noResolution")),
-    factory.createJSDocReturnTag(factory.createIdentifier("noSelfInFile")),
-  ]),
   getImportNode({
     kind: "import",
     names: ["INvimFloatWinConfig"],
     modulePath: "./utils",
   }),
 ];
+attachInlineJSDoc2Node(headAstNodes[0], ['@noResolution', '@noSelfInFile']);

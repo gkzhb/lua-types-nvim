@@ -21,7 +21,7 @@ import {
 import { convertFunction, convertType } from "./utils";
 import { ModifierSyntaxKind, SyntaxKind } from "typescript";
 import * as ts from 'typescript';
-import { getInterface } from "./ts";
+import { attachInlineJSDoc2Node, getInterface } from "./ts";
 
 /** process all methods with object namespace, like 'treesitter:get_node' */
 export const processLuaObjectProps = (mod: LuaObjectPropMap) => {
@@ -173,6 +173,8 @@ export const processMod = (mod: Modules) => {
 
   const targetFilePath = mod2DefFilePath(mod);
   const astData = headAstNodes.slice();
-  astData.push(getInterface(interfaceNode));
+  const interfaceASTNode = getInterface(interfaceNode);
+  attachInlineJSDoc2Node(interfaceASTNode, ['@noSelf']);
+  astData.push(interfaceASTNode);
   writeTSFile(targetFilePath, astData);
 }
