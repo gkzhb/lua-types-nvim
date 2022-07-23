@@ -1,6 +1,27 @@
 # About source code
 
-## Prosedure of generating type definitions of Lua APIs
+## Project structure
+
+```text
+src/
+├── api.ts -- generate api.d.ts, treesitter.d.ts etc from mpack file
+├── constants.ts
+├── data/ -- TODO: manually created type information
+├── fn.ts -- generate fn.d.ts
+├── help-doc.ts -- related to process vim help doc file
+├── index.ts -- generate all d.ts files
+├── mpack.ts -- mpack files related
+├── option.ts -- generate option.d.ts
+├── preview.ts -- view mpack file content in JSON format
+├── ts -- TypeScript AST related
+│   ├── index.ts
+│   └── utils.ts -- functions that convert from custom interface to TypeScript AST nodes
+├── ts-types.ts -- custom interface to represent TypeScript AST nodes
+├── types.ts
+└── utils.ts
+```
+
+## Prosedure of generating type definitions from mapck files
 
 1. Read from mpack file to get `NvimApiFunctions` data;
 1. Analyze function names to recursively search property objects and generate

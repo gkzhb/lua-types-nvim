@@ -9,8 +9,9 @@ import { builtinData, headAstNodes, mod2DefFilePath, NVIM_TYPE_MAP } from "./con
 import { convertType, processDocLines } from "./utils.js";
 // @ts-expect-error
 import * as funcParser from './func_signature.js';
-import {writeTSFile} from './mpack';
-import {attachInlineJSDoc2Node, getInterface} from './ts';
+import { writeTSFile } from './mpack';
+import { attachInlineJSDoc2Node, getInterface } from './ts';
+import { divideSections, findSectionByHelpTag } from './help-doc';
 
 interface IParserParam {
   type: 'param';
@@ -26,36 +27,29 @@ interface IParserFunction {
 }
 /** read lines from doc text file and combine wrapped lines */
 const readFnDocs = () => {
-  const file = fs.readFileSync('./data/builtin.txt', { encoding: 'utf-8' });
-  const sections: string[][] = [];
-  const lines = file.split('\n');
-  const sectionDivReg = /^=+$/;
-  let prevSection = 0;
-  for (let i = 0; i < lines.length; i++) {
-    if (sectionDivReg.test(lines[i])) {
-      sections.push(lines.slice(prevSection, i - 1));
-      prevSection = i + 1;
-    }
-  }
-  sections.push(lines.slice(prevSection, lines.length - 1));
-
+  const sections = divideSections('./data/builtin.txt');
   // process overview
   const tableLineReg = /^USAGE\t+RESULT\t+DESCRIPTION/;
   let tableLineIdx = -1;
-  for (let i = 0; i < sections[1].length; i++) {
-    if (tableLineReg.test(sections[1][i])) {
+  const sectionIdx = findSectionByHelpTag(sections, 'builtin-function-list');
+  if (sectionIdx === -1) {
+    throw new Error('Cannot find builtin-function-list in help file');
+  }
+  for (let i = 0; i < sections[sectionIdx].length; i++) {
+    if (tableLineReg.test(sections[sectionIdx][i])) {
       tableLineIdx = i;
       break;
     }
   }
+  const content = sections[sectionIdx];
   const tableLineList: string[] = [];
   let tableLines = 0;
   const newRowReg = /^\w/;
   const descNewLineReg = /^(\t){5}[^\s]/;
   const resultNewLineReg = /^(\t){4}[^\s]/;
   // merge multiple lines of one table row into one line
-  for (let i = tableLineIdx + 1; i < sections[1].length; i++) {
-    const line = sections[1][i];
+  for (let i = tableLineIdx + 1; i < content.length; i++) {
+    const line = content[i];
     if (!line.trim().length) {
       // skip empty lines
       continue;
@@ -63,12 +57,12 @@ const readFnDocs = () => {
     if (descNewLineReg.test(line)) {
       // description in new line, combine to the last line
       // this may be multiple description lines, or after return column
-      tableLineList[tableLines - 1] = `${tableLineList[tableLines - 1]} ${sections[1][i].trimStart()}`;
+      tableLineList[tableLines - 1] = `${tableLineList[tableLines - 1]} ${content[i].trimStart()}`;
     } else {
       if (resultNewLineReg.test(line)) {
         // result in new line, combine to the last line
         tableLineList[tableLines - 1] =
-          tableLineList[tableLines - 1] + "\t" + sections[1][i].trimStart();
+          tableLineList[tableLines - 1] + "\t" + content[i].trimStart();
       } else if (newRowReg.test(line)) {
         tableLineList.push(line);
         tableLines++;

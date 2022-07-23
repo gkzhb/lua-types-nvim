@@ -51,6 +51,7 @@ npm install -D @gkzhb/lua-types-nvim
 * [ ] Replate TypeScript types with Lua types.
 * [ ] Manually add function parameter types for `vim.fn` which are not provided
 in any strctured data.
+* [ ] Generate `types/index.d.ts` by code
 
 ## Development
 
@@ -82,6 +83,8 @@ yarn --silent preview lua
 generate types in one command.
 
 This project uses TypeScript `factory` to generate ASTs and print them to files.
+
+Refer to [docs.md](./docs.md) for more about development.
 
 ### APIs
 
