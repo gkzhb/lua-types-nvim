@@ -48,7 +48,7 @@ npm install -D @gkzhb/lua-types-nvim
 
 ## TODO
 
-* [ ] Replate TypeScript types with Lua types.
+* [ ] Replace TypeScript types with Lua types.
 * [ ] Manually add function parameter types for `vim.fn` which are not provided
 in any strctured data.
 * [ ] Generate `types/index.d.ts` by code

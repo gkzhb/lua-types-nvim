@@ -1,6 +1,10 @@
 name: building
 
-on: push
+on:
+  push:
+    tags-ignore:
+      # Do not build on version tags to avoid racing npm publish with main branch
+      - v**
 
 jobs:
   build-and-publish:
