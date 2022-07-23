@@ -86,6 +86,11 @@ is-core-module@^2.9.0:
   dependencies:
     has "^1.0.3"
 
+lua-types@^2.11.0:
+  version "2.11.0"
+  resolved "https://registry.npmmirror.com/lua-types/-/lua-types-2.11.0.tgz#f4ecdc1eb9914a8af996f4aeb51a0e32284e5058"
+  integrity sha512-J/8qHrOjkZuPBDhnuAg0DWoaJEImqXNzgEnUigCTVrSVCcchM5Y5zpcI3aWAZPhuZlb0QKC/f3nc7VGmZmBg7w==
+
 mock-require@^3.0.3:
   version "3.0.3"
   resolved "https://registry.npmmirror.com/mock-require/-/mock-require-3.0.3.tgz#ccd544d9eae81dd576b3f219f69ec867318a1946"

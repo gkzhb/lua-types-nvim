@@ -1,7 +1,13 @@
-import { moduleList } from "./constants";
-import { processMod } from "./mpack";
+import { generateFnTypes } from './fn';
+import { generateApiTypes } from './api';
+import { generateOptionTypes } from './option';
 
-for (const mod of moduleList) {
-  console.log(`=== start process module ${mod} ===`);
-  processMod(mod);
+export {
+  generateFnTypes, generateApiTypes, generateOptionTypes
+};
+
+if (require.main === module) {
+  generateApiTypes();
+  generateFnTypes();
+  generateOptionTypes();
 }

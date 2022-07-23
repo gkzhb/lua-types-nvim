@@ -4,3 +4,4 @@ lsp.d.ts
 treesitter.d.ts
 diagnostic.d.ts
 fn.d.ts
+option.d.ts

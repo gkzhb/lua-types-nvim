@@ -6,9 +6,13 @@
 [![GitHub issues](https://img.shields.io/github/issues/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/issues)
 [![GitHub license](https://img.shields.io/github/license/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/blob/main/LICENSE)
 
-> **WIP**: Now this project provides types for `vim.api`, `vim.lsp`, `vim.lua`,
-> `vim.treesitter`, `vim.diagnostic` and `vim.fn`.  
-> Next I will add `vim.opt`.
+Now this project provides types for
+* `vim.api`
+* `vim.lsp`
+* `vim.treesitter`
+* `vim.diagnostic`
+* `vim.fn`
+* `vim.opt`, `vim.go`, `vim.bo`, etc
 
 [@gkzhb/lua-types-nvim](https://www.npmjs.com/package/@gkzhb/lua-types-nvim)
 provides TypeScript definitions for Neovim(v0.7.2) Lua APIs of
@@ -41,6 +45,12 @@ npm install -D @gkzhb/lua-types-nvim
   }
 }
 ```
+
+## TODO
+
+* [ ] Replate TypeScript types with Lua types.
+* [ ] Manually add function parameter types for `vim.fn` which are not provided
+in any strctured data.
 
 ## Development
 

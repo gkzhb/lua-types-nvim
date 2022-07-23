@@ -107,13 +107,19 @@ export interface IFunction extends INode {
   /** function return value type */
   return: TypeNode;
 }
+
+/** basic data type */
+export interface IBaseType extends INode {
+  kind: 'type';
+  type: TypeNode;
+}
 /** object property */
 export interface IProp extends INode {
   kind: 'property';
   /** property name */
   id: string;
   /** property type */
-  type: ILiteralType | IFunction;
+  type: ILiteralType | IFunction | IBaseType;
   /** JSDoc comments */
   comments: string[];
   /** whether to add question mark */

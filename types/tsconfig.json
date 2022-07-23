@@ -5,7 +5,7 @@
       "lib": ["esnext"],
       "module": "CommonJS",
       "moduleResolution": "node",
-      "types": ["typescript-to-lua/language-extensions"],
+      "types": ["typescript-to-lua/language-extensions", "lua-types/jit"],
       "outDir": "lua",
       "baseUrl": ".",
       "rootDir": "."

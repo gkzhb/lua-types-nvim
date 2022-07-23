@@ -1,3 +1,4 @@
+import { typeNodes } from "../ts-types";
 import {
   factory as f,
   SyntaxKind,
@@ -68,10 +69,19 @@ export const getProps = (props: Record<string, IProp>) => {
   const nodes: TypeElement[] = [];
   for (const propName in props) {
     const prop = props[propName];
-    const propTypeNode =
-      prop.type.kind === "function"
-        ? getFunction(prop.type)
-        : getTypeLiteral(prop.type);
+    let propTypeNode = typeNodes.unknown();
+    switch (prop.type.kind) {
+      case "function":
+        propTypeNode = getFunction(prop.type);
+        break;
+      case "literalType":
+        propTypeNode = getTypeLiteral(prop.type);
+        break;
+      case "type":
+        propTypeNode = prop.type.type;
+        break;
+      default:
+    }
     const node = f.createPropertySignature(
       undefined,
       f.createIdentifier(prop.id),
