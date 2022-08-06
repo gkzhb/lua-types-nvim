@@ -8,6 +8,12 @@ import {
 import { IApiFunction, IFunction, IParameter } from "./types";
 import { typeNodes } from './ts-types';
 
+// https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
+export const isNumeric = (n: string) => {
+  const val = Number.parseFloat(n);
+  return !Number.isNaN(val) && Number.isFinite(val);
+};
+
 /** Process generic type string */
 export const extractTypeContainer = (
   type: string

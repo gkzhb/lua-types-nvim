@@ -6,17 +6,18 @@
 [![GitHub issues](https://img.shields.io/github/issues/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/issues)
 [![GitHub license](https://img.shields.io/github/license/gkzhb/lua-types-nvim)](https://github.com/gkzhb/lua-types-nvim/blob/main/LICENSE)
 
+[@gkzhb/lua-types-nvim](https://www.npmjs.com/package/@gkzhb/lua-types-nvim)
+provides TypeScript definitions of Neovim(v0.7.2) Lua APIs for
+[TypeScriptToLua](https://typescripttolua.github.io/) projects.
+
 Now this project provides types for
+
 * `vim.api`
 * `vim.lsp`
 * `vim.treesitter`
 * `vim.diagnostic`
 * `vim.fn`
 * `vim.opt`, `vim.go`, `vim.bo`, etc
-
-[@gkzhb/lua-types-nvim](https://www.npmjs.com/package/@gkzhb/lua-types-nvim)
-provides TypeScript definitions for Neovim(v0.7.2) Lua APIs of
-[TypeScriptToLua](https://typescripttolua.github.io/) projects.
 
 Inspired by [hrsh7th/deno-nvim-types: The Nvim API type definition for TypeScript](https://github.com/hrsh7th/deno-nvim-types)
 and [folke/lua-dev.nvim](https://github.com/folke/lua-dev.nvim).

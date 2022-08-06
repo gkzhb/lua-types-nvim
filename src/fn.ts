@@ -1,12 +1,12 @@
-// process `builtin.txt` help doc
+// process `builtin.txt` help doc to generate types for `vim.fn`
 // @ts-expect-error
 import * as nearley from 'nearley';
 import * as fs from 'fs';
 import { SyntaxKind } from "typescript";
 import { IFunction, IInterface, IParameter, IProp } from './types';
-import { isNumeric, typeNodes } from './ts-types';
+import { typeNodes } from './ts-types';
 import { builtinData, headAstNodes, mod2DefFilePath, NVIM_TYPE_MAP } from "./constants";
-import { convertType, processDocLines } from "./utils.js";
+import { isNumeric, convertType, processDocLines } from "./utils.js";
 // @ts-expect-error
 import * as funcParser from './func_signature.js';
 import { writeTSFile } from './mpack';

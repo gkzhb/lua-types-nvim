@@ -1,20 +1,33 @@
-import { ParamData } from "./types";
 import { factory, SyntaxKind, TypeNode, Identifier } from "typescript";
+import { ParamData } from "./types";
+import { isNumeric } from "./utils";
 
-// https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
-export const isNumeric = (n: string) => {
-  const val = Number.parseFloat(n);
-  return !Number.isNaN(val) && Number.isFinite(val);
-};
+export type TypeNodeFactory = () => TypeNode;
 
-export const typeNodes: Record<string, () => TypeNode> = {
-  number: () => factory.createKeywordTypeNode(SyntaxKind.NumberKeyword),
-  string: () => factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
-  boolean: () => factory.createKeywordTypeNode(SyntaxKind.BooleanKeyword),
-  unknown: () => factory.createKeywordTypeNode(SyntaxKind.UnknownKeyword),
-  void: () => factory.createKeywordTypeNode(SyntaxKind.VoidKeyword),
-  any: () => factory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
-  function: () => factory.createTypeReferenceNode(factory.createIdentifier('Function')),
+/** enum ts basic types */
+export enum ETSType {
+  Number = 'number',
+  String = 'string',
+  Boolean = 'boolean',
+  Unknown = 'unknown',
+  Void = 'void',
+  Any = 'any',
+  Function = 'function',
+  Record = 'record',
+  UnknownArray = 'unknownArray',
+}
+export const typeNodes: Record<ETSType, TypeNodeFactory> = {
+  [ETSType.Number]: () => factory.createKeywordTypeNode(SyntaxKind.NumberKeyword),
+  [ETSType.String]: () => factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
+  [ETSType.Boolean]: () => factory.createKeywordTypeNode(SyntaxKind.BooleanKeyword),
+  [ETSType.Unknown]: () => factory.createKeywordTypeNode(SyntaxKind.UnknownKeyword),
+  [ETSType.Void]: () => factory.createKeywordTypeNode(SyntaxKind.VoidKeyword),
+  [ETSType.Any]: () => factory.createKeywordTypeNode(SyntaxKind.AnyKeyword),
+  [ETSType.Function]: () => factory.createTypeReferenceNode(factory.createIdentifier('Function')),
+
+  [ETSType.UnknownArray]: () => factory.createArrayTypeNode(typeNodes.unknown()),
+  /** Record<string, unknown> */
+  [ETSType.Record]: () => getRecordTypeNode(typeNodes.unknown()),
 };
 
 /** complex config objects */
@@ -22,7 +35,6 @@ export const cfgTypes: Record<string, Identifier> = {
   float_config: factory.createIdentifier("INvimFloatWinConfig"),
 };
 
-typeNodes.unknownArray = () => factory.createArrayTypeNode(typeNodes.unknown());
 const recordId = factory.createIdentifier("Record");
 /** return Node for `Record<string, T>` */
 export const getRecordTypeNode = (T: TypeNode) => {
@@ -43,8 +55,6 @@ export const getDictNode = (param: ParamData) => {
   console.log('pass AST node to dict', param);
   return typeNodes.unknown();
 }
-/** Record<string, unknown> */
-typeNodes.record = () => getRecordTypeNode(typeNodes.unknown());
 
 export const getArrayTypeNode = (type: TypeNode) => {
   return factory.createArrayTypeNode(type);
