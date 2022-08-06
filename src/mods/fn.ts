@@ -1,17 +1,30 @@
 // process `builtin.txt` help doc to generate types for `vim.fn`
 // @ts-expect-error
 import * as nearley from 'nearley';
-import * as fs from 'fs';
 import { SyntaxKind } from "typescript";
-import { IFunction, IInterface, IParameter, IProp } from '../types';
-import { typeNodes } from '../ts';
-import { builtinData, headAstNodes, mod2DefFilePath, NVIM_TYPE_MAP } from "../constants";
-import { isNumeric, convertType, processDocLines } from "../utils";
+import { isNumeric } from "../utils";
+import {
+  writeTSFile,
+  IFunction,
+  IInterface,
+  IParameter,
+  IProp,
+  typeNodes,
+  headAstNodes,
+  attachInlineJSDoc2Node,
+  getInterface,
+} from "../ts";
+import {
+  divideSections,
+  findSectionByHelpTag,
+  builtinData,
+  convertType,
+  processDocLines,
+  NVIM_TYPE_MAP,
+} from "../vim";
 // @ts-expect-error
 import * as funcParser from '../func_signature.js';
-import { writeTSFile } from '../mpack';
-import { attachInlineJSDoc2Node, getInterface } from '../ts';
-import { divideSections, findSectionByHelpTag } from '../vim/help-doc';
+import {  mod2DefFilePath } from "./constants";
 
 interface IParserParam {
   type: 'param';

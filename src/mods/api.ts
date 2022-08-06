@@ -1,5 +1,5 @@
-import { moduleList } from "../constants";
-import { processMod } from "../mpack";
+import { moduleList } from "./constants";
+import { processMod } from "./utils";
 
 export const generateApiTypes = () => {
   for (const mod of moduleList) {

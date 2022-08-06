@@ -1,133 +1,91 @@
-import { typeNodes } from "./types";
-import {
-  factory as f,
-  SyntaxKind,
-  KeywordTypeSyntaxKind,
-  PropertySignature,
-  Modifier,
-  ModifierSyntaxKind,
-  TypeNode,
-  TypeElement,
-  setSyntheticLeadingComments,
-  Node,
-} from "typescript";
-import { IFunction, IImport, IInterface, ILiteralType, IProp } from "../types";
+import * as ts from 'typescript';
+import { factory, TypeNode, Identifier } from "typescript";
+import { isNumeric, writeFile } from "../utils";
+import { typeNodes } from './constants';
+import { ParamData } from "./ast";
 
-export const questionToken = f.createToken(SyntaxKind.QuestionToken);
-/** IImport to AST node */
-export const getImportNode = (node: IImport) => {
-  const ids = node.names.map((mod) =>
-    f.createImportSpecifier(false, undefined, f.createIdentifier(mod))
-  );
-  return f.createImportDeclaration(
-    undefined,
-    undefined,
-    f.createImportClause(true, undefined, f.createNamedImports(ids)),
-    f.createStringLiteral(node.modulePath)
-  );
+/** complex config objects */
+export const cfgTypes: Record<string, Identifier> = {
+  float_config: factory.createIdentifier("INvimFloatWinConfig"),
 };
 
-export const getInlineJSDocString = (comments: string) => {
-  return `* ${comments} `;
+const recordId = factory.createIdentifier("Record");
+/** return Node for `Record<string, T>` */
+export const getRecordTypeNode = (T: TypeNode) => {
+  return factory.createTypeReferenceNode(recordId, [typeNodes.string(), T]);
 };
-
-/** add multiple inline JSDoc to AST node */
-export const attachInlineJSDoc2Node = (node: Node, comments: string[]) => {
-  setSyntheticLeadingComments(
-    node,
-    comments.map((comment) => ({
-      kind: SyntaxKind.MultiLineCommentTrivia,
-      text: getInlineJSDocString(comment),
-      hasTrailingNewLine: true,
-      hasLeadingNewline: false,
-      pos: -1,
-      end: -1,
-    }))
-  );
-};
-
-export const getJSDocString = (comments: string[]) => {
-  return `*
-${comments.map((s) => " * " + s).join("\n")}
- `;
-};
-
-export const attachJSDoc2Node = (node: Node, comments: string[]) => {
-  setSyntheticLeadingComments(node, [
-    {
-      kind: SyntaxKind.MultiLineCommentTrivia,
-      text: getJSDocString(comments),
-      hasTrailingNewLine: true,
-      hasLeadingNewline: true,
-      pos: -1,
-      end: -1,
-    },
-  ]);
-}
-/** properties of Record<string, IProp> to AST nodes */
-export const getProps = (props: Record<string, IProp>) => {
-  const nodes: TypeElement[] = [];
-  for (const propName in props) {
-    const prop = props[propName];
-    let propTypeNode = typeNodes.unknown();
-    switch (prop.type.kind) {
-      case "function":
-        propTypeNode = getFunction(prop.type);
-        break;
-      case "literalType":
-        propTypeNode = getTypeLiteral(prop.type);
-        break;
-      case "type":
-        propTypeNode = prop.type.type;
-        break;
-      default:
-    }
-    const node = f.createPropertySignature(
-      undefined,
-      f.createIdentifier(prop.id),
-      prop.optional ? questionToken : undefined,
-      propTypeNode
-    );
-    if (prop.comments.length) {
-      attachJSDoc2Node(node, prop.comments);
-    }
-    nodes.push(node);
+/** return predefined interface type node */
+export const getInterfaceNode = (config: string) => {
+  if (config in cfgTypes) {
+    return factory.createTypeReferenceNode(cfgTypes[config]);
   }
-  return nodes;
+  console.log(`unknown config ${config}`);
+  return typeNodes.unknown();
+};
+export const getDictNode = (param: ParamData) => {
+  if (typeof param === 'string') {
+    return getInterfaceNode(param);
+  }
+  console.log('pass AST node to dict', param);
+  return typeNodes.unknown();
 }
 
-/** IInterface to AST node */
-export const getInterface = (node: IInterface) => {
-  const props = getProps(node.props);
-  return f.createInterfaceDeclaration(
-    undefined,
-    node.modifiers.map((modifier) => f.createModifier(modifier)),
-    f.createIdentifier(node.id),
-    undefined,
-    undefined,
-    props
+export const getArrayTypeNode = (type: TypeNode) => {
+  return factory.createArrayTypeNode(type);
+};
+
+/**
+ * Process ParamData type, return TypeNode.
+ * If param is string type, return unknown type
+ */
+export const checkParamTypeGuard = (param: ParamData): TypeNode => {
+  if (typeof param === "string") {
+    console.log(`get param type error: ${param}`);
+    return typeNodes.unknown();
+  }
+  return param as TypeNode;
+};
+
+export const checkParamType = (convert: (type: TypeNode) => TypeNode) => {
+  return (param: ParamData) => {
+    return convert(checkParamTypeGuard(param));
+  };
+};
+
+export const getArrayTypeNodeWithValues = (...params: ParamData[]) => {
+  params[0] = checkParamTypeGuard(params[0]);
+  if (params.length === 2 && typeof params[1] === "string") {
+    // array with specified length
+    let paramCount = -1;
+    paramCount = parseInt(params[1]);
+    if (!isNumeric(params[1])) {
+      console.log(`string param ${params[1]} is not a number`);
+      paramCount = -1;
+    }
+    if (paramCount === -1) {
+      // invalid number string
+      return getArrayTypeNode(params[0]);
+    }
+    return factory.createTupleTypeNode(new Array(paramCount).fill(params[0]));
+  }
+  // normal tuple
+  return factory.createTupleTypeNode(
+    params.map((param) => checkParamTypeGuard(param))
   );
 };
 
-/** IFunction to AST node */
-export const getFunction = (func: IFunction) => {
-  return f.createFunctionTypeNode(
-    undefined,
-    func.parameters.map((param) =>
-      f.createParameterDeclaration(
-        undefined,
-        undefined,
-        param.more ? f.createToken(SyntaxKind.DotDotDotToken) : undefined,
-        f.createIdentifier(param.id),
-        param.optional && !param.more ? questionToken : undefined,
-        param.type
-      )
-    ),
-    func.return
-  );
-};
+/** output AST to TS file */
+export const writeTSFile = (targetFilePath: string, nodes: ts.Node[]) => {
+  const resultFile = ts.createSourceFile(targetFilePath, "", ts.ScriptTarget.Latest, false, ts.ScriptKind.TS);
+  const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed });
+  const content: string[] = [];
+  for (const node of nodes) {
+    content.push(printer.printNode(ts.EmitHint.Unspecified, node, resultFile));
+  }
 
-/** ILiteralType to AST node */
-export const getTypeLiteral = (type: ILiteralType) => {
-  return f.createTypeLiteralNode(getProps(type.props));
+  if (content.length) {
+    writeFile(targetFilePath, content.join('\n'));
+  } else {
+    console.warn(`Empty content for ${targetFilePath}.`);
+  }
 };

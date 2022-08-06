@@ -1,4 +1,4 @@
-import { mod2MpackPath } from "./constants";
+import { mod2MpackPath } from "./mods";
 import * as fs from 'fs';
 import { decode } from '@msgpack/msgpack';
 
