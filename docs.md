@@ -2,6 +2,8 @@
 
 ## Project structure
 
+TODO: project structure changed
+
 ```text
 src/
 ├── api.ts -- generate api.d.ts, treesitter.d.ts etc from mpack file

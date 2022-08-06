@@ -1,4 +1,4 @@
-import { typeNodes } from "../ts-types";
+import { typeNodes } from "./types";
 import {
   factory as f,
   SyntaxKind,
@@ -131,4 +131,3 @@ export const getFunction = (func: IFunction) => {
 export const getTypeLiteral = (type: ILiteralType) => {
   return f.createTypeLiteralNode(getProps(type.props));
 };
-

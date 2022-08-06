@@ -3,15 +3,15 @@
 import * as nearley from 'nearley';
 import * as fs from 'fs';
 import { SyntaxKind } from "typescript";
-import { IFunction, IInterface, IParameter, IProp } from './types';
-import { typeNodes } from './ts-types';
-import { builtinData, headAstNodes, mod2DefFilePath, NVIM_TYPE_MAP } from "./constants";
-import { isNumeric, convertType, processDocLines } from "./utils.js";
+import { IFunction, IInterface, IParameter, IProp } from '../types';
+import { typeNodes } from '../ts';
+import { builtinData, headAstNodes, mod2DefFilePath, NVIM_TYPE_MAP } from "../constants";
+import { isNumeric, convertType, processDocLines } from "../utils";
 // @ts-expect-error
-import * as funcParser from './func_signature.js';
-import { writeTSFile } from './mpack';
-import { attachInlineJSDoc2Node, getInterface } from './ts';
-import { divideSections, findSectionByHelpTag } from './help-doc';
+import * as funcParser from '../func_signature.js';
+import { writeTSFile } from '../mpack';
+import { attachInlineJSDoc2Node, getInterface } from '../ts';
+import { divideSections, findSectionByHelpTag } from '../vim/help-doc';
 
 interface IParserParam {
   type: 'param';

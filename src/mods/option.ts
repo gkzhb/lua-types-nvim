@@ -1,9 +1,9 @@
 import { SyntaxKind } from 'typescript';
-import { IBaseType, IInterface, IProp } from './types';
-import { builtinData, headAstNodes, mod2DefFilePath } from './constants';
-import { convertType, processDocLines } from './utils';
-import { attachInlineJSDoc2Node, getInterface } from './ts';
-import { writeTSFile } from './mpack';
+import { IBaseType, IInterface, IProp } from '../types';
+import { builtinData, headAstNodes, mod2DefFilePath } from '../constants';
+import { convertType, processDocLines } from '../utils';
+import { attachInlineJSDoc2Node, getInterface } from '../ts';
+import { writeTSFile } from '../mpack';
 
 /** Vim option scopes */
 export enum EVimOptionType {

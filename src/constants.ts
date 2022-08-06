@@ -9,7 +9,7 @@ import {
   getInterfaceNode,
   getDictNode,
 	ETSType,
-} from "./ts-types";
+} from "./ts";
 import { attachInlineJSDoc2Node, getImportNode } from "./ts";
 import { IBuiltinDocs, ParamData } from "./types";
 import { isNumeric } from "./utils";

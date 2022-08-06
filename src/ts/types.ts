@@ -1,6 +1,6 @@
 import { factory, SyntaxKind, TypeNode, Identifier } from "typescript";
-import { ParamData } from "./types";
-import { isNumeric } from "./utils";
+import { ParamData } from "../types";
+import { isNumeric } from "../utils";
 
 export type TypeNodeFactory = () => TypeNode;
 

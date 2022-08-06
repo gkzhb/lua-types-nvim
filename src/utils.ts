@@ -6,7 +6,7 @@ import {
   processParams,
 } from "./constants";
 import { IApiFunction, IFunction, IParameter } from "./types";
-import { typeNodes } from './ts-types';
+import { typeNodes } from './ts';
 
 // https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
 export const isNumeric = (n: string) => {

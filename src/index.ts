@@ -1,10 +1,7 @@
-import { generateFnTypes } from './fn';
-import { generateApiTypes } from './api';
-import { generateOptionTypes } from './option';
+import { generateFnTypes, generateApiTypes, generateOptionTypes } from "./mods";
 
-export {
-  generateFnTypes, generateApiTypes, generateOptionTypes
-};
+export * from './preview';
+export { generateFnTypes, generateApiTypes, generateOptionTypes };
 
 if (require.main === module) {
   generateApiTypes();
