@@ -7,9 +7,11 @@ on:
     tags-ignore:
       # Do not build on version tags to avoid racing npm publish with main branch
       - v**
+      - latest
+      - beta
 
 jobs:
-  build-and-publish:
+  try-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -18,7 +20,3 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org/
       - run: yarn in-one-go
-      - uses: JS-DevTools/npm-publish@v1
-        with:
-          token: ${{ secrets.NPM_TOKEN }}
-          access: "public"

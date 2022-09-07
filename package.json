@@ -15,6 +15,7 @@
     "types/*.d.ts",
     "types/tsconfig.json",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "author": "gkzhb <gkzhb98@gmail.com>",
